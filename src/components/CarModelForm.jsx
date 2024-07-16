@@ -1,34 +1,27 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import CarModelList from './CarModelList';
 
 const CarModelForm = () => {
   const [carModelName, setCarModelName] = useState('');
   const [brand, setBrand] = useState('');
   const [brands, setBrands] = useState([]);
-  const [carModels, setCarModels] = useState([]);
+  const [refresh, setRefresh] = useState(false);
+
+  const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const fetchBrands = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/api/cars/brands');
+        const response = await axios.get(`${API_URL}/api/cars/brands`);
         setBrands(response.data);
       } catch (error) {
         console.error('Error fetching brands:', error);
       }
     };
 
-    const fetchCarModels = async () => {
-      try {
-        const response = await axios.get('http://localhost:8080/api/cars/car-models');
-        setCarModels(response.data);
-      } catch (error) {
-        console.error('Error fetching car models:', error);
-      }
-    };
-
     fetchBrands();
-    fetchCarModels();
-  }, []);
+  }, [API_URL]);
 
   const handleNameChange = (e) => {
     setCarModelName(e.target.value);
@@ -45,7 +38,7 @@ const CarModelForm = () => {
     };
     try {
       await axios.post(
-        `http://localhost:8080/api/cars/car-models`,
+        `${API_URL}/api/cars/car-models`,
         carModel,
         {
           params: {
@@ -59,8 +52,7 @@ const CarModelForm = () => {
       alert('Car model created successfully');
       setCarModelName('');
       setBrand('');
-      const response = await axios.get(`http://localhost:8080/api/cars/car-models`);
-      setCarModels(response.data);
+      setRefresh(!refresh); // Trigger refresh after creating a model
     } catch (error) {
       console.error('Error creating car model:', error);
     }
@@ -98,25 +90,7 @@ const CarModelForm = () => {
         </div>
         <button type="submit" className="btn btn-primary">Crear Modelo</button>
       </form>
-      <h2 className="mt-5">Modelos de Autos</h2>
-      <table className="table table-striped mt-3">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Nombre del Modelo</th>
-            <th>Marca</th>
-          </tr>
-        </thead>
-        <tbody>
-          {carModels.map((model) => (
-            <tr key={model.id}>
-              <td>{model.id}</td>
-              <td>{model.name}</td>
-              <td>{model.brand.name}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <CarModelList refresh={refresh} />
     </div>
   );
 };

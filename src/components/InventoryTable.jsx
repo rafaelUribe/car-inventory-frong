@@ -1,83 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React from 'react';
+import useInventory from '../hooks/useInventory';
 
 const InventoryTable = () => {
-  const [brands, setBrands] = useState([]);
-  const [models, setModels] = useState([]);
-  const [versions, setVersions] = useState([]);
-  const [inventory, setInventory] = useState('');
-
-  const [selectedBrand, setSelectedBrand] = useState('');
-  const [selectedModel, setSelectedModel] = useState('');
-  const [selectedVersion, setSelectedVersion] = useState('');
-
-  const API_URL = import.meta.env.VITE_API_URL;
-
-  useEffect(() => {
-    axios.get(`http://localhost:8080/api/cars/brands`)
-    .then(response => {
-      if (Array.isArray(response.data)) {
-        setBrands(response.data);
-      } else {
-        console.error('Unexpected response format:', response.data);
-      }
-    })
-    .catch(error => console.error('Error fetching brands:', error));
-  }, []);
-
-  useEffect(() => {
-    if (selectedBrand) {
-        console.log(selectedBrand)
-      axios.get(`http://localhost:8080/api/cars/car-models/byBrand/${parseInt(selectedBrand)}`)
-        .then(response => setModels(response.data))
-        .catch(error => console.error('Error fetching models:', error));
-    } else {
-      setModels([]);
-      setVersions([]);
-      setInventory([]);
-    }
-  }, [selectedBrand]);
-
-  useEffect(() => {
-    if (selectedModel) {
-      axios.get(`http://localhost:8080/api/cars/car-versions/byModel/${selectedModel}`)
-        .then(response => setVersions(response.data))
-        .catch(error => console.error('Error fetching versions:', error));
-    } else {
-      setVersions([]);
-      setInventory([]);
-    }
-  }, [selectedModel]);
-
-  useEffect(() => {
-    if (selectedVersion) {
-        axios.get(`http://localhost:8080/api/cars/car-versions/inventory/${selectedVersion}`)
-        .then(response => setInventory(response.data))
-        .catch(error => console.error('Error fetching inventory:', error));
-    } else {
-      setInventory([]);
-    }
-  }, [selectedVersion]);
-
-  const handleIncrement = () => {
-    axios.patch(`http://localhost:8080/api/inventory/update-quantity/${selectedVersion}?action=add`)
-      .then(response => setInventory(prevInventory => ({
-        ...prevInventory,
-        quantity: prevInventory.quantity + 1
-      })))
-      .catch(error => console.error('Error updating inventory:', error));
-  };
-
-  const handleDecrement = () => {
-    if (inventory.quantity > 0) {
-      axios.patch(`http://localhost:8080/api/inventory/update-quantity/${selectedVersion}?action=subtract`)
-        .then(response => setInventory(prevInventory => ({
-          ...prevInventory,
-          quantity: prevInventory.quantity - 1
-        })))
-        .catch(error => console.error('Error updating inventory:', error));
-    }
-  };
+  const {
+    brands,
+    models,
+    versions,
+    inventory,
+    selectedBrand,
+    selectedModel,
+    selectedVersion,
+    setSelectedBrand,
+    setSelectedModel,
+    setSelectedVersion,
+    updateInventory
+  } = useInventory();
 
   return (
     <div className="container mt-5">
@@ -90,8 +27,7 @@ const InventoryTable = () => {
           value={selectedBrand || ''}
         >
           <option value="">Seleccione una marca</option>
-          {
-            brands && brands.map(brand => (
+          {brands.map(brand => (
             <option key={brand.id} value={brand.id}>{brand.name}</option>
           ))}
         </select>
@@ -127,15 +63,16 @@ const InventoryTable = () => {
         </select>
       </div>
       <div className="mt-5">
-        {
-           inventory.quantity &&
-            <div>
-                <h2>Inventario Disponible</h2>       
-                <h3>{inventory.quantity}</h3>
-                <button className="btn btn-primary mr-2" onClick={handleIncrement}>Agregar</button>
-                <button className="btn btn-secondary ms-2" onClick={handleDecrement}>Restar</button>
+        {inventory !== null && (
+          <div>
+            <h2>Inventario Disponible</h2>
+            <h3>{inventory}</h3>
+            <div className="mt-3">
+              <button className="btn btn-success" onClick={() => updateInventory('add')}>Agregar</button>
+              <button className="btn btn-danger ms-2" onClick={() => updateInventory('subtract')}>Restar</button>
             </div>
-        }
+          </div>
+        )}
       </div>
     </div>
   );
