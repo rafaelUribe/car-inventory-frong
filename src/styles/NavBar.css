@@ -1,23 +1,7 @@
-.custom-navbar {
-
-    padding: 10px 20px;
-    display: flex;
-    justify-content: space-between;
-}
-
-.custom-navbar a {
-    color: #fff;
-    text-decoration: none;
-    margin-right: 10px;
-}
-
-.custom-navbar a:hover {
-    text-decoration: underline;
-}
-
 .navbar-brand {
     font-size: 1.5rem;
     font-weight: bold;
+    padding-left: 10px;
 }
 
 .nav-link {

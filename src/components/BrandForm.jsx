@@ -1,47 +1,53 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import Swal from 'sweetalert2'
+import { useForm } from '../hooks/useForm';
+import { 
+  fetchBrands,
+  createBrand
+} from '../utils/api';
+import '../styles/BrandForm.css';
+import BackButton from './BackBtn';
 
-const axiosInstance = axios.create({
-  baseURL: 'http://localhost:8080',
-  withCredentials: true,
-  headers: {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json',
-  }
-});
 
 const BrandForm = () => {
-  const [brand, setBrand] = useState({ name: '' });
+  const [formValues, handleInputChange ] = useForm({
+    name: '',
+  });
+  console.log(formValues);
+  
+  const {name} = formValues;
+  
+  // TODO: Implementar el estado de las marcas
   const [brands, setBrands] = useState([]);
 
-  const handleChange = (e) => {
-    setBrand({ ...brand, [e.target.name]: e.target.value });
+  const isFormValid = () => {
+    if (name.trim().length === 0) {
+      Swal.fire('Error', 'Name is required', 'error');
+      return false;
+    }else{
+      return true;
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
     try {
-      await axiosInstance.post('/api/cars/brands', brand)
-      alert('Marca creada exitosamente');
-      fetchBrands();
-      setBrand({ name: '' });
+      if (isFormValid()) {
+        const newBrand = await createBrand(name);
+        console.log(newBrand);
+        Swal.fire('Success', 'Brand created successfully', 'success');
+        fetchBrands();
+      }
+      // setBrand({ name: '' });
     } catch (error) {
       console.error('Error al crear la marca:', error);
     }
   };
 
-  const fetchBrands = async () => {
-    try {
-      const response = await axios.get('http://localhost:8080/api/cars/brands');
-      setBrands(response.data);
-    } catch (error) {
-      console.error('Error al traer las marcas:', error);
-    }
-  };
-
-  useEffect(() => {
-    fetchBrands();
-  }, []);
+  // useEffect(() => {
+  //   fetchBrands();
+  // }, []);
 
   return (
     <div className="container mt-4">
@@ -53,12 +59,13 @@ const BrandForm = () => {
             name="name"
             id="name"
             placeholder="Nombre de la marca"
-            value={brand.name}
-            onChange={handleChange}
+            value={name}
+            onChange={handleInputChange}
             className="form-control"
           />
         </div>
         <button type="submit" className="btn btn-primary">Crear Marca</button>
+        <BackButton />
       </form>
       <div>
         <h2>Lista de Marcas</h2>
