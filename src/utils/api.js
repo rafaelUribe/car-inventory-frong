@@ -28,6 +28,7 @@ api.interceptors.response.use((response) => {
   return Promise.reject(error);
 });
 
+// Brands API
 export const fetchBrands = async () => {
   url = `${base_url}/api/cars/brands`;
   try {
@@ -51,3 +52,35 @@ export const createBrand = async (brand) => {
     return null;
   }
 }
+
+// Car Models API
+export const fetchCarModels = async () => {
+  url = `${base_url}/api/cars/car-models`;
+  try {
+    const response = await axios.get(url);
+    console.log(response.data);
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching car models: ${error}`);
+    return null;
+  }
+};
+
+export const createCarModel = async (carModel, brand) => {
+  url = `${base_url}/api/cars/car-models`;
+  try {
+    const response = await axios.post(url, carModel, {
+      params:{
+        brandId: brand,
+      },
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    console.log(`Car model created: ${response.data}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error creating car model: ${error}`);
+    return null;
+  }
+};

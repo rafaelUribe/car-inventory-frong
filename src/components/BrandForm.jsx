@@ -10,7 +10,7 @@ import BackButton from './BackBtn';
 
 
 const BrandForm = () => {
-  const [formValues, handleInputChange ] = useForm({
+  const [formValues, handleInputChange, reset ] = useForm({
     name: '',
   });
   console.log(formValues);
@@ -34,10 +34,11 @@ const BrandForm = () => {
     
     try {
       if (isFormValid()) {
-        const newBrand = await createBrand(name);
-        console.log(newBrand);
+        // const newBrand = await createBrand(name);
+        // console.log(newBrand);
         Swal.fire('Success', 'Brand created successfully', 'success');
-        fetchBrands();
+        // fetchBrands();
+        reset();
       }
       // setBrand({ name: '' });
     } catch (error) {

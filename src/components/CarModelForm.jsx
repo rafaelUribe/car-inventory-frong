@@ -1,66 +1,65 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import Swal from 'sweetalert2'
+import {
+  fetchBrands,
+  fetchCarModels,
+  createCarModel
+} from '../utils/api';
+import { useForm } from '../hooks/useForm';
+import '../styles/BrandForm.css';
+import BackButton from './BackBtn';
 
 const CarModelForm = () => {
-  const [carModelName, setCarModelName] = useState('');
-  const [brand, setBrand] = useState('');
+  const [formValues, handleInputChange, reset] = useForm({
+    name: '',
+    brand: '',
+  });
+  const { name, brand } = formValues;
+  // const [brand, setBrand] = useState('');
   const [brands, setBrands] = useState([]);
   const [carModels, setCarModels] = useState([]);
 
   useEffect(() => {
-    const fetchBrands = async () => {
-      try {
-        const response = await axios.get('http://localhost:8080/api/cars/brands');
-        setBrands(response.data);
-      } catch (error) {
-        console.error('Error fetching brands:', error);
-      }
-    };
+    // let brands_response = fetchBrands();
+    // console.log(`Brands: ${brands_response}`);
+    // setBrands(brands_response);
 
-    const fetchCarModels = async () => {
-      try {
-        const response = await axios.get('http://localhost:8080/api/cars/car-models');
-        setCarModels(response.data);
-      } catch (error) {
-        console.error('Error fetching car models:', error);
-      }
-    };
-
-    fetchBrands();
-    fetchCarModels();
+    // let cars_response = fetchCarModels();
+    // console.log(`Car Models: ${cars_response}`);
+    // setCarModels(cars_response); 
+    console.log('Fetching brands and models...');
   }, []);
-
-  const handleNameChange = (e) => {
-    setCarModelName(e.target.value);
-  };
 
   const handleBrandChange = (e) => {
     setBrand(e.target.value);
   };
 
+  const isFormValid = () => {
+    if (name.trim().length === 0) {
+      Swal.fire('Error', 'Name is required', 'error');
+      return false;
+    } else if (brand.trim().length === 0) {
+      Swal.fire('Error', 'Brand is required', 'error');
+      return false;
+    } else {
+      return true;
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const carModel = {
-      name: carModelName,
+      name: name,
     };
     try {
-      await axios.post(
-        `http://localhost:8080/api/cars/car-models`,
-        carModel,
-        {
-          params: {
-            brandId: brand,
-          },
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-      alert('Car model created successfully');
-      setCarModelName('');
-      setBrand('');
-      const response = await axios.get(`http://localhost:8080/api/cars/car-models`);
-      setCarModels(response.data);
+      if (isFormValid()) {
+        // const newCarModel = await createCarModel(carModel, brand);
+        Swal.fire('Success', 'Car model created successfully', 'success');
+        reset();
+        setBrand('');
+        // const response = fetchCarModels();
+        // setCarModels(response.data);
+      }
     } catch (error) {
       console.error('Error creating car model:', error);
     }
@@ -76,8 +75,8 @@ const CarModelForm = () => {
             name="name"
             id="carModelName"
             placeholder="Nombre del Modelo"
-            value={carModelName}
-            onChange={handleNameChange}
+            value={name}
+            onChange={handleInputChange}
             className="form-control"
           />
         </div>
@@ -87,7 +86,7 @@ const CarModelForm = () => {
             name="brandId"
             id="brandId"
             value={brand || ''}
-            onChange={handleBrandChange}
+            onChange={handleInputChange}
             className="form-select"
           >
             <option value="">Seleccione una Marca</option>
@@ -97,6 +96,7 @@ const CarModelForm = () => {
           </select>
         </div>
         <button type="submit" className="btn btn-primary">Crear Modelo</button>
+        <BackButton />
       </form>
       <h2 className="mt-5">Modelos de Autos</h2>
       <table className="table table-striped mt-3">
