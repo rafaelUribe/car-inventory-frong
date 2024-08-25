@@ -1,0 +1,23 @@
+.error404 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: antiquewhite;
+}
+
+.error404__content {
+    text-align: center;
+}
+
+.error404__title {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 1rem;
+}
+
+.error404__message {
+    font-size: 1.2rem;
+    color: #666;
+}
