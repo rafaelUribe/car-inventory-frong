@@ -3,62 +3,122 @@ import Swal from 'sweetalert2'
 import {
   fetchBrands,
   fetchCarModels,
-  createCarModel
+  createCarModel,
+  deleteCarModel
 } from '../utils/api';
 import { useForm } from '../hooks/useForm';
 import '../styles/BrandForm.css';
 import BackButton from './BackBtn';
 
 const CarModelForm = () => {
+
   const [formValues, handleInputChange, reset] = useForm({
-    name: '',
     brand: '',
+    model: '',
   });
-  const { name, brand } = formValues;
-  // const [brand, setBrand] = useState('');
+
+  const { brand, model } = formValues;
   const [brands, setBrands] = useState([]);
   const [carModels, setCarModels] = useState([]);
+  
+  const fetchData = async () => {
+    try {
+      const fetchedBrands = await fetchBrands();
+      setBrands(fetchedBrands);
+      console.log('Brands fetched:', fetchedBrands);
+    } catch (error) {
+      console.error('Error fetching brands:', error);
+    }
+  };
+
+  const getCarModels = async () => {
+    try {
+      const response = await fetchCarModels();
+      setCarModels(response);
+    } catch (error) {
+      console.error('Error fetching car models:', error);
+    }
+  };
+
+  const createNewCarModel = async (model, brand) => {
+    try {
+      const newCarModel = await createCarModel(model, brand);
+      return newCarModel;
+    } catch (error) {
+      console.error('Error creating car model:', error);
+      return null;
+    }
+  }
+
+  const goDelete = async (id) => {
+
+    try {
+      const response = await deleteCarModel(id);
+      console.log('Car model deleted:', response);
+      getCarModels();
+    } catch (error) {
+      console.error('Error deleting car model:', error);
+    }
+  }
+
+  const handleDelete = (id) => {
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: 'No podrás revertir esto',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, eliminar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        goDelete(id);
+        Swal.fire(
+          'Eliminado',
+          'El modelo de auto ha sido eliminado',
+          'success'
+        )
+      }
+    }
+    )
+  }
+  
 
   useEffect(() => {
-    // let brands_response = fetchBrands();
-    // console.log(`Brands: ${brands_response}`);
-    // setBrands(brands_response);
-
-    // let cars_response = fetchCarModels();
-    // console.log(`Car Models: ${cars_response}`);
-    // setCarModels(cars_response); 
+    fetchData();
     console.log('Fetching brands and models...');
   }, []);
 
-  const handleBrandChange = (e) => {
-    setBrand(e.target.value);
-  };
-
   const isFormValid = () => {
-    if (name.trim().length === 0) {
-      Swal.fire('Error', 'Name is required', 'error');
-      return false;
-    } else if (brand.trim().length === 0) {
+    if (brand.trim().length === 0) {
       Swal.fire('Error', 'Brand is required', 'error');
+      return false;
+    }else if (model.trim().length === 0) {
+      Swal.fire('Error', 'Name is required', 'error');
       return false;
     } else {
       return true;
     }
   };
 
+  useEffect(() => {
+    getCarModels();
+  }, []);
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const carModel = {
-      name: name,
-    };
+  
     try {
       if (isFormValid()) {
-        // const newCarModel = await createCarModel(carModel, brand);
-        Swal.fire('Success', 'Car model created successfully', 'success');
-        reset();
-        setBrand('');
-        // const response = fetchCarModels();
-        // setCarModels(response.data);
+        const created = await createNewCarModel(model, brand);
+        if (created !== null) {
+          Swal.fire('Success', 'Car model created successfully', 'success');
+          reset();
+          getCarModels();
+        } else {
+          Swal.fire('Error', 'Error creating car model', 'error');
+        }
       }
     } catch (error) {
       console.error('Error creating car model:', error);
@@ -72,10 +132,11 @@ const CarModelForm = () => {
           <label htmlFor="carModelName" className="form-label">Nombre del Modelo</label>
           <input
             type="text"
-            name="name"
+            disabled={brand.length === 0}
+            name="model"
             id="carModelName"
             placeholder="Nombre del Modelo"
-            value={name}
+            value={model}
             onChange={handleInputChange}
             className="form-control"
           />
@@ -83,9 +144,9 @@ const CarModelForm = () => {
         <div className="mb-3">
           <label htmlFor="brandId" className="form-label">Marca</label>
           <select
-            name="brandId"
             id="brandId"
-            value={brand || ''}
+            name="brand"
+            value={brand}
             onChange={handleInputChange}
             className="form-select"
           >
@@ -105,6 +166,7 @@ const CarModelForm = () => {
             <th>ID</th>
             <th>Nombre del Modelo</th>
             <th>Marca</th>
+            <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
@@ -113,6 +175,9 @@ const CarModelForm = () => {
               <td>{model.id}</td>
               <td>{model.name}</td>
               <td>{model.brand.name}</td>
+              <td>
+                <button className="btn btn-danger" onClick={()=> handleDelete(model.id)}>Eliminar</button>
+              </td>
             </tr>
           ))}
         </tbody>

@@ -12,17 +12,17 @@ import BackButton from './BackBtn';
 
 const BrandForm = () => {
   const [formValues, handleInputChange, reset ] = useForm({
-    name: '',
+    brand: '',
   });
   console.log(formValues);
   
-  const {name} = formValues;
+  const {brand} = formValues;
   
   // TODO: Implementar el estado de las marcas
   const [brands, setBrands] = useState([]);
 
   const isFormValid = () => {
-    if (name.trim().length === 0) {
+    if (brand.trim().length === 0) {
       Swal.fire('Error', 'Name is required', 'error');
       return false;
     }else{
@@ -35,7 +35,7 @@ const BrandForm = () => {
     
     try {
       if (isFormValid()) {
-        const newBrand = await createBrand(name);
+        const newBrand = await createBrand(brand);
         if (!newBrand) {
           Swal.fire('Error', 'Error creating brand', 'error');
           return;
@@ -50,7 +50,7 @@ const BrandForm = () => {
     }
   };
 
-  const handleDelete = async (id) => {
+  const goDelete = async (id) => {
     try {
       const response = await deleteBrand(id);
       console.log('Brand deleted:', response);
@@ -58,6 +58,28 @@ const BrandForm = () => {
     } catch (error) {
       console.error('Error deleting brand:', error);
     }
+  }
+
+  const handleDelete = (id) => {
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: 'No podrás revertir esto',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, eliminar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        goDelete(id);
+        Swal.fire(
+          'Eliminado',
+          'El modelo de auto ha sido eliminado',
+          'success'
+        )
+      }
+    }
+    )
   }
 
   const fetchData = async () => {
@@ -81,7 +103,7 @@ const BrandForm = () => {
           <label htmlFor="name" className="form-label">Nombre de la marca</label>
           <input
             type="text"
-            name="name"
+            name="brand"
             id="name"
             placeholder="Nombre de la marca"
             value={name}

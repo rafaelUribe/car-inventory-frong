@@ -76,7 +76,7 @@ export const deleteBrand = async (brandId) => {
 
 // Car Models API
 export const fetchCarModels = async () => {
-  url = `${base_url}/api/cars/car-models`;
+  const url = `${base_url}/cars/car-models`;
   try {
     console.log(`Fetching car models from: ${url}`);
     const response = await axios.get(url);
@@ -102,15 +102,20 @@ export const fetchCarModelsByBrand = async (brandId) => {
 }
 
 export const createCarModel = async (carModel, brand) => {
-  url = `${base_url}/api/cars/car-models`;
+  const url = `${base_url}/cars/car-models`;
+  const body = {
+    name: carModel,
+  };
+
   try {
-    const response = await axios.post(url, carModel, {
-      params:{
+    const response = await axios.post(url, body, {
+      params: {
         brandId: brand,
       },
       headers: {
         'Content-Type': 'application/json',
       },
+      withCredentials: false,
     });
     console.log(`Car model created: ${response.data}`);
     return response.data;
@@ -119,6 +124,18 @@ export const createCarModel = async (carModel, brand) => {
     return null;
   }
 };
+
+export const deleteCarModel = async (carModelId) => {
+  const url = `${base_url}/cars/car-models/${carModelId}`;
+  try {
+    const response = await axios.delete(url);
+    console.log(`Car model deleted: ${response.data}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error deleting car model: ${error}`);
+    return null;
+  }
+}
 
 // Car Versions API
 export const fetchCarVersions = async () => {
