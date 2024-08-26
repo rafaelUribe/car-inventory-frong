@@ -47,13 +47,29 @@ export const fetchBrands = async () => {
 };
 
 export const createBrand = async (brand) => {
-  url = `${base_url}/api/cars/brands`;
+  const url = `${base_url}/cars/brands`;
+  const body = {
+    name: brand,
+  };
+
   try {
-    const response = await axios.post(url, brand);
+    const response = await api.post(url, body);
     console.log(`Brand created: ${response.data}`);
     return response.data;
   } catch (error) {
     console.error(`Error creating brand: ${error}`);
+    return null;
+  }
+}
+
+export const deleteBrand = async (brandId) => {
+  const url = `${base_url}/cars/brands/${brandId}`;
+  try {
+    const response = await api.delete(url);
+    console.log(`Brand deleted: ${response.data}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error deleting brand: ${error}`);
     return null;
   }
 }

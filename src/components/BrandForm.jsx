@@ -3,7 +3,8 @@ import Swal from 'sweetalert2'
 import { useForm } from '../hooks/useForm';
 import { 
   fetchBrands,
-  createBrand
+  createBrand,
+  deleteBrand
 } from '../utils/api';
 import '../styles/BrandForm.css';
 import BackButton from './BackBtn';
@@ -34,21 +35,44 @@ const BrandForm = () => {
     
     try {
       if (isFormValid()) {
-        // const newBrand = await createBrand(name);
-        // console.log(newBrand);
+        const newBrand = await createBrand(name);
+        if (!newBrand) {
+          Swal.fire('Error', 'Error creating brand', 'error');
+          return;
+        } 
+        console.log(newBrand);
         Swal.fire('Success', 'Brand created successfully', 'success');
-        // fetchBrands();
+        fetchData();
         reset();
       }
-      // setBrand({ name: '' });
     } catch (error) {
       console.error('Error al crear la marca:', error);
     }
   };
 
-  // useEffect(() => {
-  //   fetchBrands();
-  // }, []);
+  const handleDelete = async (id) => {
+    try {
+      const response = await deleteBrand(id);
+      console.log('Brand deleted:', response);
+      fetchData();
+    } catch (error) {
+      console.error('Error deleting brand:', error);
+    }
+  }
+
+  const fetchData = async () => {
+    try {
+      const fetchedBrands = await fetchBrands();
+      setBrands(fetchedBrands);
+      console.log('Brands fetched:', fetchedBrands);
+    } catch (error) {
+      console.error('Error fetching brands:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   return (
     <div className="container mt-4">
@@ -75,6 +99,7 @@ const BrandForm = () => {
             <tr>
               <th>ID</th>
               <th>Nombre</th>
+              <th>Acciones</th>
             </tr>
           </thead>
           <tbody>
@@ -82,6 +107,9 @@ const BrandForm = () => {
               <tr key={b.id}>
                 <td>{b.id}</td>
                 <td>{b.name}</td>
+                <td>
+                <button className='custom-btn' onClick={() => handleDelete(b.id)}>Delete</button>
+              </td>
               </tr>
             ))}
           </tbody>
