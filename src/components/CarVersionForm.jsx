@@ -1,79 +1,79 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useForm } from '../hooks/useForm';
+import {
+  fetchBrands,
+  fetchCarModels,
+} from '../utils/api';
+import BackButton from './BackBtn';
 
 const CarVersionForm = () => {
-  const [carVersionName, setCarVersionName] = useState('');
+
+  const [formValues, handleInputChange, reset ] = useForm({
+    carVersionName: '',
+    selectedBrand: '',
+    selectedCarModel: ''
+  });
+
+  const {carVersionName, selectedBrand, selectedCarModel} = formValues;
+
+  // const [carVersionName, setCarVersionName] = useState('');
   const [brands, setBrands] = useState([]);
   const [carModels, setCarModels] = useState([]);
   const [filteredCarModels, setFilteredCarModels] = useState([]);
   const [carVersions, setCarVersions] = useState([]);
-  const [selectedBrand, setSelectedBrand] = useState('');
-  const [selectedCarModel, setSelectedCarModel] = useState('');
+  // const [selectedBrand, setSelectedBrand] = useState('');
+  // const [selectedCarModel, setSelectedCarModel] = useState('');
 
   useEffect(() => {
-    const fetchBrands = async () => {
-      try {
-        const response = await axios.get('http://localhost:8080/api/cars/brands');
-        setBrands(response.data);
-      } catch (error) {
-        console.error('Error fetching brands:', error);
-      }
-    };
+    // Fetch brands, car models and car versions
+    // fetchBrands();
+    // fetchCarModels();
+    // fetchCarVersions();
 
-    const fetchCarModels = async () => {
-      try {
-        const response = await axios.get('http://localhost:8080/api/cars/car-models');
-        setCarModels(response.data);
-      } catch (error) {
-        console.error('Error fetching car models:', error);
-      }
-    };
-
-    const fetchCarVersions = async () => {
-      try {
-        const response = await axios.get('http://localhost:8080/api/cars/car-versions');
-        setCarVersions(response.data);
-      } catch (error) {
-        console.error('Error fetching car versions:', error);
-      }
-    };
-
-    fetchBrands();
-    fetchCarModels();
-    fetchCarVersions();
+    console.log('Fetching brands, car models and car versions...');
   }, []);
 
-  const handleBrandChange = (e) => {
-    const brandId = e.target.value;
-    setSelectedBrand(brandId);
-    setSelectedCarModel('')
-    setFilteredCarModels(carModels.filter((model) => model.brand.id === parseInt(brandId)));
-  };
+  useEffect(() => {
+    //update filtered car models when selected brand changes
+    setFilteredCarModels(carModels.filter((model) => model.brand.id === parseInt(selectedBrand)));
+  }, [selectedBrand]);
 
-  const handleModelChange = (e) => {
-    const model = e.target.value;
-    setSelectedCarModel(model);
-  };
+  useEffect(() => {
+    // Fetch brands
+  }, []);
 
-  const handleChange = (e) => {
-    setCarVersionName(e.target.value);
-  };
+  // const handleBrandChange = (e) => {
+  //   const brandId = e.target.value;
+  //   setSelectedBrand(brandId);
+  //   setSelectedCarModel('')
+  //   setFilteredCarModels(carModels.filter((model) => model.brand.id === parseInt(brandId)));
+  // };
+
+  // const handleModelChange = (e) => {
+  //   const model = e.target.value;
+  //   setSelectedCarModel(model);
+  // };
+
+  // const handleChange = (e) => {
+  //   setCarVersionName(e.target.value);
+  // };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-        const response = await axios.post('http://localhost:8080/api/cars/car-versions', null, {
-            params: {
-                versionName: carVersionName,
-                carModelId: selectedCarModel
-            },
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            withCredentials: false
-        });
-        alert('Car version created successfully');
-        setCarVersionName('')
+        // const response = await axios.post('http://localhost:8080/api/cars/car-versions', null, {
+        //     params: {
+        //         versionName: carVersionName,
+        //         carModelId: selectedCarModel
+        //     },
+        //     headers: {
+        //         'Content-Type': 'application/json'
+        //     },
+        //     withCredentials: false
+        // });
+        // alert('Car version created successfully');
+        reset();
         const fetchResponse = await axios.get('http://localhost:8080/api/cars/car-versions');
         setCarVersions(fetchResponse.data);
     } catch (error) {
@@ -91,7 +91,7 @@ const CarVersionForm = () => {
             name="brandId"
             id="brandId"
             value={selectedBrand}
-            onChange={handleBrandChange}
+            onChange={handleInputChange}
             className="form-select"
           >
             <option value="">Seleccione una Marca</option>
@@ -108,7 +108,7 @@ const CarVersionForm = () => {
               name="carModelId"
               id="carModelId"
               value={selectedCarModel}
-              onChange={handleModelChange}
+              onChange={handleInputChange}
               className="form-select"
             >
               <option value="">Seleccione un Modelo</option>
@@ -129,13 +129,14 @@ const CarVersionForm = () => {
                 id="versionName"
                 placeholder="Nombre de la Versión"
                 value={carVersionName}
-                onChange={handleChange}
+                onChange={handleInputChange}
                 className="form-control"
               />
             </div>
             <button type="submit" className="btn btn-primary" >Crear Versión</button>
           </>
         }
+        <BackButton />
       </form>
       <h2 className="mt-5">Versiones de Autos</h2>
       <table className="table table-striped mt-3">

@@ -2,8 +2,9 @@
 
 import axios from 'axios';
 
-// const base_url = process.env.REACT_APP_API_URL;
-const base_url = 'http://localhost:3001';
+
+// const base_url = import.meta.env.VITE_API_URL;
+const base_url = 'https://cars-service-production.up.railway.app/api'; 
 
 const api = axios.create({
   baseURL: base_url,
@@ -30,13 +31,17 @@ api.interceptors.response.use((response) => {
 
 // Brands API
 export const fetchBrands = async () => {
-  url = `${base_url}/api/cars/brands`;
+  const url = `${base_url}/cars/brands`;
+  console.log(`Fetching brands from: ${url}`);
   try {
-    const response = await axios.get(url);
-    console.log(response.data);
-    return response.data;
+    const response = await api.get(url);
+    // const response = await axios.get(url);
+    let data = response.data;
+    console.log(`data from fetchBrands: ${data}`);
+    console.log(data);
+    return data;
   } catch (error) {
-    console.error(`Error fetching brands: ${error}`);
+    console.error(error);
     return null;
   }
 };
@@ -57,6 +62,7 @@ export const createBrand = async (brand) => {
 export const fetchCarModels = async () => {
   url = `${base_url}/api/cars/car-models`;
   try {
+    console.log(`Fetching car models from: ${url}`);
     const response = await axios.get(url);
     console.log(response.data);
     return response.data;
@@ -65,6 +71,19 @@ export const fetchCarModels = async () => {
     return null;
   }
 };
+
+export const fetchCarModelsByBrand = async (brandId) => {
+  const url = `${base_url}/cars/car-models/byBrand/${brandId}`;
+  try {
+    console.log(`Fetching car models by brand from: ${url}`);
+    const response = await axios.get(url);
+    console.log(response.data);
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching car models by brand: ${error}`);
+    return null;
+  }
+}
 
 export const createCarModel = async (carModel, brand) => {
   url = `${base_url}/api/cars/car-models`;
@@ -84,3 +103,62 @@ export const createCarModel = async (carModel, brand) => {
     return null;
   }
 };
+
+// Car Versions API
+export const fetchCarVersions = async () => {
+  url = `${base_url}/api/cars/car-versions`;
+  try {
+    const response = await axios.get(url);
+    console.log(response.data);
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching car versions: ${error}`);
+    return null;
+  }
+};
+
+export const fetchCarVersionsByModel = async (modelId) => {
+  const url = `${base_url}/cars/car-versions/byModel/${modelId}`;
+  try {
+    const response = await axios.get(url);
+    console.log(response.data);
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching car versions by model: ${error}`);
+    return null;
+  }
+}
+
+export const createCarVersion = async (carVersion, carModel) => {
+  url = `${base_url}/api/cars/car-versions`;
+  try {
+    const response = await axios.post(url, null, {
+      params: {
+        versionName: carVersion,
+        carModelId: carModel,
+      },
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      withCredentials: false,
+    });
+    console.log(`Car version created: ${response.data}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error creating car version: ${error}`);
+    return null;
+  }
+};
+
+export const fetchCarVerionsInventory = async (versionId) => {
+  const url = `${base_url}/cars/car-versions/inventory/${versionId}`;
+  try {
+    console.log(`Fetching car version inventory from: ${url}`);
+    const response = await axios.get(url);
+    console.log(response.data);
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching car version inventory: ${error}`);
+    return null;
+  }
+}
