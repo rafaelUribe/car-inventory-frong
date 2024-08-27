@@ -10,10 +10,12 @@ const CarVersionForm = () => {
   const [selectedBrand, setSelectedBrand] = useState('');
   const [selectedCarModel, setSelectedCarModel] = useState('');
 
+  const API_URL = import.meta.env.VITE_API_URL;
+
   useEffect(() => {
     const fetchBrands = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/api/cars/brands');
+        const response = await axios.get(`${API_URL}/api/cars/brands`);
         setBrands(response.data);
       } catch (error) {
         console.error('Error fetching brands:', error);
@@ -22,7 +24,7 @@ const CarVersionForm = () => {
 
     const fetchCarModels = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/api/cars/car-models');
+        const response = await axios.get(`${API_URL}/api/cars/car-models`);
         setCarModels(response.data);
       } catch (error) {
         console.error('Error fetching car models:', error);
@@ -31,7 +33,7 @@ const CarVersionForm = () => {
 
     const fetchCarVersions = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/api/cars/car-versions');
+        const response = await axios.get(`${API_URL}api/cars/car-versions`);
         setCarVersions(response.data);
       } catch (error) {
         console.error('Error fetching car versions:', error);
@@ -62,7 +64,7 @@ const CarVersionForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-        const response = await axios.post('http://localhost:8080/api/cars/car-versions', null, {
+        const response = await axios.post(`${API_URL}/api/cars/car-versions`, null, {
             params: {
                 versionName: carVersionName,
                 carModelId: selectedCarModel
@@ -74,7 +76,7 @@ const CarVersionForm = () => {
         });
         alert('Car version created successfully');
         setCarVersionName('')
-        const fetchResponse = await axios.get('http://localhost:8080/api/cars/car-versions');
+        const fetchResponse = await axios.get(`${API_URL}/api/cars/car-versions`);
         setCarVersions(fetchResponse.data);
     } catch (error) {
         console.error('Error creating car version:', error);

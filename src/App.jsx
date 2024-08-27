@@ -3,6 +3,7 @@ import BrandForm from './components/BrandForm';
 import CarModelForm from './components/CarModelForm';
 import CarVersionForm from './components/CarVersionForm';
 import Home from './pages/Home';
+import BuscarElastic from './components/BuscarElastic';
 
 const App = () => {
   return (
@@ -27,6 +28,9 @@ const App = () => {
               <li className="nav-item">
                 <Link className="nav-link" to="/add-car-version">Versiones</Link>
               </li>
+              <li className="nav-item">
+                <Link className="nav-link" to="/buscar">Buscador</Link>
+              </li>
             </ul>
           </div>
         </div>
@@ -37,6 +41,7 @@ const App = () => {
           <Route path="/add-brand" element={<BrandForm />} />
           <Route path="/add-car-model" element={<CarModelForm />} />
           <Route path="/add-car-version" element={<CarVersionForm />} />
+          <Route path="/buscar" element={<BuscarElastic />} />
         </Routes>
       </div>
     </Router>

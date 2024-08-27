@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 const axiosInstance = axios.create({
-  baseURL: 'http://localhost:8080',
+  baseURL: API_URL,
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
@@ -32,7 +34,7 @@ const BrandForm = () => {
 
   const fetchBrands = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/api/cars/brands');
+      const response = await axios.get(`${API_URL}/api/cars/brands`);
       setBrands(response.data);
     } catch (error) {
       console.error('Error al traer las marcas:', error);

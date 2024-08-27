@@ -14,7 +14,7 @@ const InventoryTable = () => {
   const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
-    axios.get(`http://localhost:8080/api/cars/brands`)
+    axios.get(`${API_URL}/api/cars/brands`)
     .then(response => {
       if (Array.isArray(response.data)) {
         setBrands(response.data);
@@ -28,7 +28,7 @@ const InventoryTable = () => {
   useEffect(() => {
     if (selectedBrand) {
         console.log(selectedBrand)
-      axios.get(`http://localhost:8080/api/cars/car-models/byBrand/${parseInt(selectedBrand)}`)
+      axios.get(`${API_URL}/api/cars/car-models/byBrand/${parseInt(selectedBrand)}`)
         .then(response => setModels(response.data))
         .catch(error => console.error('Error fetching models:', error));
     } else {
@@ -40,7 +40,7 @@ const InventoryTable = () => {
 
   useEffect(() => {
     if (selectedModel) {
-      axios.get(`http://localhost:8080/api/cars/car-versions/byModel/${selectedModel}`)
+      axios.get(`${API_URL}/api/cars/car-versions/byModel/${selectedModel}`)
         .then(response => setVersions(response.data))
         .catch(error => console.error('Error fetching versions:', error));
     } else {
@@ -51,7 +51,7 @@ const InventoryTable = () => {
 
   useEffect(() => {
     if (selectedVersion) {
-        axios.get(`http://localhost:8080/api/cars/car-versions/inventory/${selectedVersion}`)
+        axios.get(`${API_URL}/api/cars/car-versions/inventory/${selectedVersion}`)
         .then(response => setInventory(response.data))
         .catch(error => console.error('Error fetching inventory:', error));
     } else {
@@ -60,7 +60,7 @@ const InventoryTable = () => {
   }, [selectedVersion]);
 
   const handleIncrement = () => {
-    axios.patch(`http://localhost:8080/api/inventory/update-quantity/${selectedVersion}?action=add`)
+    axios.patch(`${API_URL}/api/inventory/update-quantity/${selectedVersion}?action=add`)
       .then(response => setInventory(prevInventory => ({
         ...prevInventory,
         quantity: prevInventory.quantity + 1
@@ -70,7 +70,7 @@ const InventoryTable = () => {
 
   const handleDecrement = () => {
     if (inventory.quantity > 0) {
-      axios.patch(`http://localhost:8080/api/inventory/update-quantity/${selectedVersion}?action=subtract`)
+      axios.patch(`${API_URL}/api/inventory/update-quantity/${selectedVersion}?action=subtract`)
         .then(response => setInventory(prevInventory => ({
           ...prevInventory,
           quantity: prevInventory.quantity - 1

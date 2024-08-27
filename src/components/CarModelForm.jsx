@@ -7,10 +7,12 @@ const CarModelForm = () => {
   const [brands, setBrands] = useState([]);
   const [carModels, setCarModels] = useState([]);
 
+  const API_URL = import.meta.env.VITE_API_URL;
+
   useEffect(() => {
     const fetchBrands = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/api/cars/brands');
+        const response = await axios.get(`${API_URL}/api/cars/brands`);
         setBrands(response.data);
       } catch (error) {
         console.error('Error fetching brands:', error);
@@ -19,7 +21,7 @@ const CarModelForm = () => {
 
     const fetchCarModels = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/api/cars/car-models');
+        const response = await axios.get(`${API_URL}/api/cars/car-models`);
         setCarModels(response.data);
       } catch (error) {
         console.error('Error fetching car models:', error);
@@ -45,7 +47,7 @@ const CarModelForm = () => {
     };
     try {
       await axios.post(
-        `http://localhost:8080/api/cars/car-models`,
+        `${API_URL}/api/cars/car-models`,
         carModel,
         {
           params: {
@@ -59,7 +61,7 @@ const CarModelForm = () => {
       alert('Car model created successfully');
       setCarModelName('');
       setBrand('');
-      const response = await axios.get(`http://localhost:8080/api/cars/car-models`);
+      const response = await axios.get(`${API_URL}/api/cars/car-models`);
       setCarModels(response.data);
     } catch (error) {
       console.error('Error creating car model:', error);
