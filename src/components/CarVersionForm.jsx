@@ -1,83 +1,106 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import { useForm } from '../hooks/useForm';
+import Swal from 'sweetalert2'
 import {
   fetchBrands,
-  fetchCarModels,
+  fetchCarModelsByBrand,
+  fetchCarVersions,
+  createCarVersion
 } from '../utils/api';
 import BackButton from './BackBtn';
 
 const CarVersionForm = () => {
 
-  const [formValues, handleInputChange, reset ] = useForm({
-    carVersionName: '',
-    selectedBrand: '',
-    selectedCarModel: ''
+  const [formValues, handleInputChange, reset] = useForm({
+    brand: '',
+    model: '',
+    version: '',
   });
 
-  const {carVersionName, selectedBrand, selectedCarModel} = formValues;
+  const { brand, model, version } = formValues;
 
-  // const [carVersionName, setCarVersionName] = useState('');
   const [brands, setBrands] = useState([]);
   const [carModels, setCarModels] = useState([]);
-  const [filteredCarModels, setFilteredCarModels] = useState([]);
   const [carVersions, setCarVersions] = useState([]);
-  // const [selectedBrand, setSelectedBrand] = useState('');
-  // const [selectedCarModel, setSelectedCarModel] = useState('');
+
+
+  const fetchData = async () => {
+    try {
+      const fetchedBrands = await fetchBrands();
+      setBrands(fetchedBrands);
+      console.log('Brands fetched:', fetchedBrands);
+    } catch (error) {
+      console.error('Error fetching brands:', error);
+    }
+  };
+
+  const fetchCarModels = async () => {
+    try {
+      const fetchedCarModels = await fetchCarModelsByBrand(brand);
+      setCarModels(fetchedCarModels);
+      console.log('Car models fetched:', fetchedCarModels);
+    }
+    catch (error) {
+      console.error('Error fetching car models:', error);
+    }
+  };
+
+  const getCarVersions = async () => {
+    try {
+      const response = await fetchCarVersions();
+      setCarVersions(response);
+    }
+    catch (error) {
+      console.error('Error fetching car versions:', error);
+    }
+  };
 
   useEffect(() => {
-    // Fetch brands, car models and car versions
-    // fetchBrands();
-    // fetchCarModels();
-    // fetchCarVersions();
-
+    fetchData();
+    getCarVersions();
     console.log('Fetching brands, car models and car versions...');
   }, []);
 
   useEffect(() => {
-    //update filtered car models when selected brand changes
-    setFilteredCarModels(carModels.filter((model) => model.brand.id === parseInt(selectedBrand)));
-  }, [selectedBrand]);
+    console.log('Brand changed:', brand);
+    if (brand) {
+      fetchCarModels();
+    }
+  }, [brand]);
 
-  useEffect(() => {
-    // Fetch brands
-  }, []);
+  const isFormValid = () => {
+    if (brand.trim().length === 0) {
+      Swal.fire('Error', 'Brand is required', 'error');
+      return false;
+    }else if (model.trim().length === 0) {
+      Swal.fire('Error', 'Name is required', 'error');
+      return false;
+    } else if (version.trim().length === 0) {
+      Swal.fire('Error', 'Version is required', 'error');
+      return false;
+    }else {
+      return true;
+    }
+  };
 
-  // const handleBrandChange = (e) => {
-  //   const brandId = e.target.value;
-  //   setSelectedBrand(brandId);
-  //   setSelectedCarModel('')
-  //   setFilteredCarModels(carModels.filter((model) => model.brand.id === parseInt(brandId)));
-  // };
-
-  // const handleModelChange = (e) => {
-  //   const model = e.target.value;
-  //   setSelectedCarModel(model);
-  // };
-
-  // const handleChange = (e) => {
-  //   setCarVersionName(e.target.value);
-  // };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-        // const response = await axios.post('http://localhost:8080/api/cars/car-versions', null, {
-        //     params: {
-        //         versionName: carVersionName,
-        //         carModelId: selectedCarModel
-        //     },
-        //     headers: {
-        //         'Content-Type': 'application/json'
-        //     },
-        //     withCredentials: false
-        // });
-        // alert('Car version created successfully');
+      if (isFormValid()) {
+        const newCarVersion = await createCarVersion(version, model);
+        if (!newCarVersion) {
+          Swal.fire('Error', 'Error creating car version', 'error');
+          return;
+        }
+        console.log(newCarVersion);
+        Swal.fire('Success', 'Car version created successfully', 'success');
+        fetchData();
         reset();
-        const fetchResponse = await axios.get('http://localhost:8080/api/cars/car-versions');
-        setCarVersions(fetchResponse.data);
+      }
+      getCarVersions();
     } catch (error) {
-        console.error('Error creating car version:', error);
+      console.error('Error creating car version:', error);
     }
   };
 
@@ -88,9 +111,9 @@ const CarVersionForm = () => {
         <div className="mb-3">
           <label htmlFor="brandId" className="form-label">Marca</label>
           <select
-            name="brandId"
+            name="brand"
             id="brandId"
-            value={selectedBrand}
+            value={brand}
             onChange={handleInputChange}
             className="form-select"
           >
@@ -101,34 +124,34 @@ const CarVersionForm = () => {
           </select>
         </div>
         {
-          selectedBrand && 
+          brand &&
           <div className="mb-3">
             <label htmlFor="carModelId" className="form-label">Modelo</label>
             <select
-              name="carModelId"
+              name="model"
               id="carModelId"
-              value={selectedCarModel}
+              value={model}
               onChange={handleInputChange}
               className="form-select"
             >
               <option value="">Seleccione un Modelo</option>
-              {filteredCarModels.map((model) => (
+              {carModels.map((model) => (
                 <option key={model.id} value={model.id}>{model.name}</option>
               ))}
             </select>
           </div>
         }
         {
-          selectedCarModel &&
+          model &&
           <>
             <div className="mb-3">
               <label htmlFor="versionName" className="form-label">Nombre de la Versión</label>
               <input
                 type="text"
-                name="versionName"
+                name="version"
                 id="versionName"
                 placeholder="Nombre de la Versión"
-                value={carVersionName}
+                value={version}
                 onChange={handleInputChange}
                 className="form-control"
               />

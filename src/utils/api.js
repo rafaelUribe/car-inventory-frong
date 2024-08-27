@@ -139,7 +139,7 @@ export const deleteCarModel = async (carModelId) => {
 
 // Car Versions API
 export const fetchCarVersions = async () => {
-  url = `${base_url}/api/cars/car-versions`;
+  const url = `${base_url}/cars/car-versions`;
   try {
     const response = await axios.get(url);
     console.log(response.data);
@@ -163,7 +163,7 @@ export const fetchCarVersionsByModel = async (modelId) => {
 }
 
 export const createCarVersion = async (carVersion, carModel) => {
-  url = `${base_url}/api/cars/car-versions`;
+  const url = `${base_url}/cars/car-versions`;
   try {
     const response = await axios.post(url, null, {
       params: {

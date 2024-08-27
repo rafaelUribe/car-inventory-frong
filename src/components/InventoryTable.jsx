@@ -66,15 +66,6 @@ const InventoryTable = () => {
     }
   };
 
- 
-
-
-  // const [selectedBrand, setSelectedBrand] = useState('');
-  // const [selectedModel, setSelectedModel] = useState('');
-  // const [selectedVersion, setSelectedVersion] = useState('');
-
-  // const API_URL = import.meta.env.VITE_API_URL;
-
   useEffect(() => {
     fetchData();
   }, []);
